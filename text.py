@@ -15,8 +15,11 @@ class Text:
         self.text = new_text
         self.surface = self.font.render(self.text, False, self.color)
 
-    def update_position(self, a=()):
-        self.pos = a
+    def update_position(self, rect=()):
+        self.pos = rect
+
+    def update_center_position(self, center_cord):
+        self.pos = self.surface.get_rect(center=center_cord)
 
     def draw(self, screen):
         screen.blit(self.surface, self.pos)
