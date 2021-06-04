@@ -1,25 +1,26 @@
 import pygame as pg
-from text import Text
+
 from constans import Color, Sign
+from text import Text
 
 
 class Game:
     def __init__(self):
-        self.size_block: int = 150
+        self.size_block: int = 125
         self.retreat: int = 7
         self.time_wait: int = 5
         self.move: int = 1
-
+        self.cell_count = 4
         self.winner = None
-
-        self.resolution: tuple = (self.size_block * 3 + self.retreat * 4, self.size_block * 3 + self.retreat * 4)
+        self.resolution: tuple = (self.size_block * self.cell_count + self.retreat * (self.cell_count + 1),
+                                  self.size_block * self.cell_count + self.retreat * (self.cell_count + 1))
         self.screen = pg.display.set_mode(self.resolution)
 
         self.game_over: bool = False
         self.exit: bool = False
 
-        self.pole = [[Sign.empty] * 3 for _ in range(3)]
-        self.rects = [[0] * 3 for _ in range(3)]
+        self.pole = [[Sign.empty] * self.cell_count for _ in range(self.cell_count)]
+        self.rects = [[0] * self.cell_count for _ in range(self.cell_count)]
 
         self.victory_text: Text = Text('', 70, Color.white)
         self.victory_text.update_center_position(center_cord=(self.resolution[0] // 2, self.resolution[1] // 2))
@@ -37,8 +38,8 @@ class Game:
             Sign.x: self.draw_cross,
             Sign.o: self.draw_circle
         }
-        for row in range(3):
-            for col in range(3):
+        for row in range(self.cell_count):
+            for col in range(self.cell_count):
                 cell = self.pole[row][col]
                 cell_rect = self.rects[row][col]
                 if cell in context:
@@ -69,59 +70,45 @@ class Game:
             return True
         return False
 
-    @staticmethod
-    def check_win(move, dirs):
-        for dir in dirs:
-            for row in range(3):
-                sum = 0
-                for col in range(3):
-                    if dir(row, col) == move:
-                        sum += 1
-                if sum == 3:
-                    return True
-
-    # todo refactor func
     def check_game_over(self, move):
-        # горизонт
-        dirs = [
-            lambda x, y: self.pole[x][y],  # горизонт
-            lambda y, x: self.pole[x][y],  # вертикаль
-        ]
-        if self.check_win(move, dirs):
-            return True
+        # горизонт и вертикаль
+        for i in range(self.cell_count):
+            new_arr = [self.pole[j][i] for j in range(self.cell_count)]
+            if new_arr.count(move) == self.cell_count or self.pole[i].count(move) == self.cell_count:
+                return True
         # диагональ
-        if self.pole[0][0] == self.pole[1][1] == self.pole[2][2] != Sign.empty or \
-                self.pole[0][2] == self.pole[1][1] == self.pole[2][0] != Sign.empty:
+        left_vertical = [self.pole[i][i] for i in range(self.cell_count)]
+        right_vertical = [self.pole[x][abs(self.cell_count - x - 1)] for x in range(self.cell_count)]
+        if left_vertical.count(move) == self.cell_count or right_vertical.count(move) == self.cell_count:
             return True
         return False
 
     def field_init(self):
         cord = lambda i: self.size_block * i + (i + 1) * self.retreat
-        for row in range(3):
-            for col in range(3):
+        for row in range(self.cell_count):
+            for col in range(self.cell_count):
                 self.rects[row][col] = pg.Rect(cord(col), cord(row), self.size_block, self.size_block)
 
     # todo refactor
     def click_event(self):
         mouse_x, mouse_y = pg.mouse.get_pos()
-        for i in range(3):
-            for j in range(3):
-                if self.collision_with_rect(mouse_x, mouse_y, self.rects[i][j]) and self.pole[i][j] == Sign.empty:
-                    if self.move % 2:
-                        sign = Sign.x
-                    else:
-                        sign = Sign.o
-                    self.pole[i][j] = sign
+        for i in range(self.cell_count):
+            for j in range(self.cell_count):
+                if self.game_over:
+                    return
+                if self.pole[i][j] == Sign.empty and self.collision_with_rect(mouse_x, mouse_y, self.rects[i][j]):
+                    self.pole[i][j] = Sign.x if self.move % 2 else Sign.o
                     if self.check_game_over(self.pole[i][j]):
                         self.winner = self.pole[i][j]
                         self.game_over = True
-                    elif self.move == 9:
+                    elif self.move == self.cell_count ** 2:
                         self.game_over = True
                     self.move += 1
 
     def event_check(self, event):
         if event.type == pg.QUIT:
             self.exit = self.game_over = True
+            return
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             self.click_event()
 
