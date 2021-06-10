@@ -1,8 +1,10 @@
 import pygame as pg
 
+from constans import Color
+
 
 class Text:
-    def __init__(self, text, size, rect=(0, 0), color=(255,255,255), font="Arial"):
+    def __init__(self, text, size, rect=(0, 0), color=Color.white, font="Arial"):
         pg.font.init()
         self.pos = rect
         self.text = text

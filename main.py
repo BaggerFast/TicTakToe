@@ -6,21 +6,20 @@ from text import Text
 
 class Game:
     def __init__(self):
-        self.size_block: int = 125
+        self.size_block: int = 300
         self.retreat: int = 7
         self.time_wait: int = 5
         self.move: int = 1
-        self.cell_count = 4
+        self.cell_count = 10
         self.winner = None
-        self.resolution: tuple = (self.size_block * self.cell_count + self.retreat * (self.cell_count + 1),
-                                  self.size_block * self.cell_count + self.retreat * (self.cell_count + 1))
+        self.resolution: tuple = tuple([self.size_block * self.cell_count + self.retreat * (self.cell_count + 1)] * 2)
         self.screen = pg.display.set_mode(self.resolution)
 
         self.game_over: bool = False
         self.exit: bool = False
 
         self.pole = [[Sign.empty] * self.cell_count for _ in range(self.cell_count)]
-        self.rects = [[0] * self.cell_count for _ in range(self.cell_count)]
+        self.rects = self.field_init()
 
         self.victory_text: Text = Text('', 70, Color.white)
         self.victory_text.update_center_position(center_cord=(self.resolution[0] // 2, self.resolution[1] // 2))
@@ -43,17 +42,17 @@ class Game:
                 cell = self.pole[row][col]
                 cell_rect = self.rects[row][col]
                 if cell in context:
-                    context[cell](cell_rect)
+                    context[cell](rect=cell_rect)
                 else:
                     pg.draw.rect(self.screen, Color.white, cell_rect)
 
-    def draw_cross(self, rect):
+    def draw_cross(self, rect: pg.Rect):
         # 1
         pg.draw.rect(self.screen, Color.red, rect)
         pg.draw.line(self.screen, Color.white, rect.topright, rect.bottomleft, 5)
         pg.draw.line(self.screen, Color.white, rect.topleft, rect.bottomright, 5)
 
-    def draw_circle(self, rect):
+    def draw_circle(self, rect: pg.Rect):
         # 2
         pg.draw.rect(self.screen, Color.green, rect)
         pg.draw.circle(self.screen, Color.white, rect.center, self.size_block // 2, 5)
@@ -70,24 +69,22 @@ class Game:
             return True
         return False
 
-    def check_game_over(self, move):
-        # горизонт и вертикаль
+    def check_game_over(self, move) -> bool:
         for i in range(self.cell_count):
             new_arr = [self.pole[j][i] for j in range(self.cell_count)]
             if new_arr.count(move) == self.cell_count or self.pole[i].count(move) == self.cell_count:
                 return True
-        # диагональ
         left_vertical = [self.pole[i][i] for i in range(self.cell_count)]
         right_vertical = [self.pole[x][abs(self.cell_count - x - 1)] for x in range(self.cell_count)]
+
         if left_vertical.count(move) == self.cell_count or right_vertical.count(move) == self.cell_count:
             return True
         return False
 
     def field_init(self):
         cord = lambda i: self.size_block * i + (i + 1) * self.retreat
-        for row in range(self.cell_count):
-            for col in range(self.cell_count):
-                self.rects[row][col] = pg.Rect(cord(col), cord(row), self.size_block, self.size_block)
+        return [[pg.Rect(cord(col), cord(row), self.size_block, self.size_block)
+                 for row in range(self.cell_count)] for col in range(self.cell_count)]
 
     # todo refactor
     def click_event(self):

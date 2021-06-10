@@ -1,6 +1,7 @@
 import sys
-import traceback
+
 import pygame as pg
+
 from main import Game
 
 
@@ -9,12 +10,10 @@ def main():
     pg.font.init()
     pg.mixer.init()
     pg.display.set_caption("Tic tac toe")
-    game: Game
     try:
-        game = Game()
-        game.start()
+        Game().start()
     except Exception:
-        print(traceback.format_exc())
+        print(Exception)
     sys.exit(0)
 
 
