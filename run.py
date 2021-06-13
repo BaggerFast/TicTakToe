@@ -1,6 +1,6 @@
 import pygame as pg
 
-from Scenes import MainScene
+from scenes import MainScene
 
 
 def main():

@@ -7,7 +7,7 @@ from text import Text
 
 
 class BaseScene:
-    def __init__(self, header_name):
+    def __init__(self, header_name: str):
         pg.display.set_caption(header_name)
         self.fps = 60
         self.scene_active: bool = True
@@ -23,7 +23,7 @@ class BaseScene:
         self.finish()
 
     @staticmethod
-    def event_check(event) -> None:
+    def event_check(event: pg.event) -> None:
         if event.type == pg.QUIT:
             sys.exit(0)
 
@@ -35,7 +35,7 @@ class BaseScene:
 
 
 class MainScene(BaseScene):
-    def __init__(self, cell_count=3):
+    def __init__(self, cell_count: int = 3):
         super().__init__('Tic Tac Toe')
         # graphics
         self.size_block: int = 150
@@ -52,7 +52,7 @@ class MainScene(BaseScene):
     def finish(self) -> None:
         GameOverScene(self).start()
 
-    def event_check(self, event) -> None:
+    def event_check(self, event: pg.event) -> None:
         super().event_check(event)
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             self.click_event()
@@ -74,7 +74,7 @@ class MainScene(BaseScene):
                         self.scene_active = False
                     self.move += 1
 
-    def check_win_status(self, move) -> bool:
+    def check_win_status(self, move: str) -> bool:
         for i in range(self.cell_count):
             lines = [[self.pole[j][i] for j in range(self.cell_count)], self.pole[i]]
             for line in lines:
@@ -123,7 +123,7 @@ class MainScene(BaseScene):
 
 
 class GameOverScene(BaseScene):
-    def __init__(self, main_scene):
+    def __init__(self, main_scene: MainScene):
         super().__init__('Game Over')
         self.main_scene: MainScene = main_scene
         self.texts: list[Text] = self.get_texts()
@@ -131,11 +131,11 @@ class GameOverScene(BaseScene):
     def get_texts(self) -> list[Text]:
         victory_text: Text = Text(f'Winner: {self.main_scene.winner}' if self.main_scene.winner else 'Draw', 70)
         victory_text.update_center_position(center_cord=(self.main_scene.resolution[0] // 2,
-                                                         self.main_scene.resolution[1] // 2))
+                                                         self.main_scene.resolution[1] // 2 - 20))
 
         space_text: Text = Text('Press space to continue', 40)
         space_text.update_center_position(center_cord=(self.main_scene.resolution[0] // 2,
-                                                       self.main_scene.resolution[1] // 2 + 55))
+                                                       self.main_scene.resolution[1] // 2 + 30))
         return [victory_text, space_text]
 
     def event_check(self, event: pg.event) -> None:
