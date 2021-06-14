@@ -1,14 +1,22 @@
+import traceback
+from datetime import datetime
+
 import pygame as pg
 
 from scenes import MainScene
 
 
-def main():
+def TitTacToe():
     pg.display.init()
     pg.font.init()
     pg.mixer.init()
-    MainScene().start()
+    try:
+        MainScene().start()
+    except Exception:
+        print(traceback.format_exc())
+        with open(f"exception-{datetime.now().strftime('%m-%d-%Y-%H-%M-%S')}.log", "w") as file:
+            file.write(traceback.format_exc())
 
 
 if __name__ == '__main__':
-    main()
+    TitTacToe()

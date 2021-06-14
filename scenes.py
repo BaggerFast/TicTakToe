@@ -9,9 +9,9 @@ from text import Text
 class BaseScene:
     def __init__(self, header_name: str):
         pg.display.set_caption(header_name)
-        self.fps = 60
+        self.fps: int = 60
         self.scene_active: bool = True
-        self.time = pg.time.Clock()
+        self.time: pg.time = pg.time.Clock()
 
     def start(self) -> None:
         while self.scene_active:
@@ -47,7 +47,7 @@ class MainScene(BaseScene):
         # logic
         self.move: int = 1
         self.winner: str = ''
-        self.pole: list[list[str]] = [[Sign.empty] * self.cell_count for _ in range(self.cell_count)]
+        self.field: list[list[str]] = [[Sign.empty] * self.cell_count for _ in range(self.cell_count)]
 
     def finish(self) -> None:
         GameOverScene(self).start()
@@ -63,10 +63,9 @@ class MainScene(BaseScene):
             row_cord = self.get_cord_for_rect(row)
             for col in range(self.cell_count):
                 col_cord = self.get_cord_for_rect(col)
-                if self.pole[row][col] == Sign.empty and self.collision_with_rect(cursor_pos,
-                                                                                  self.get_rect(row_cord, col_cord)):
+                if self.check_cursor_click(cursor_pos, self.get_rect(row_cord, col_cord), self.field[row][col]):
                     sign = Sign.x if self.move % 2 else Sign.o
-                    self.pole[row][col] = sign
+                    self.field[row][col] = sign
                     if self.check_win_status(sign):
                         self.winner = sign
                         self.scene_active = False
@@ -76,13 +75,13 @@ class MainScene(BaseScene):
 
     def check_win_status(self, move: str) -> bool:
         for i in range(self.cell_count):
-            lines = [[self.pole[j][i] for j in range(self.cell_count)], self.pole[i]]
+            lines = [[self.field[j][i] for j in range(self.cell_count)], self.field[i]]
             for line in lines:
                 if line.count(move) == self.cell_count:
                     return True
 
-        diagonals = [[self.pole[i][i] for i in range(self.cell_count)],
-                     [self.pole[x][abs(self.cell_count - x - 1)] for x in range(self.cell_count)]]
+        diagonals = [[self.field[i][i] for i in range(self.cell_count)],
+                     [self.field[x][abs(self.cell_count - x - 1)] for x in range(self.cell_count)]]
 
         for line in diagonals:
             if line.count(move) == self.cell_count:
@@ -91,8 +90,8 @@ class MainScene(BaseScene):
 
     def draw_to_screen(self) -> None:
         context = {
-            Sign.x: self.draw_cross,
-            Sign.o: self.draw_circle
+            Sign.x: lambda i: self.draw_cross(rect=i),
+            Sign.o: lambda i: self.draw_circle(rect=i)
         }
         self.screen.fill(Color.white)
         for row in range(self.cell_count):
@@ -100,8 +99,8 @@ class MainScene(BaseScene):
             for col in range(self.cell_count):
                 rect = self.get_rect(row_cord, self.get_cord_for_rect(col))
                 pg.draw.rect(self.screen, Color.black, rect)
-                if self.pole[row][col] in context:
-                    context[self.pole[row][col]](rect=rect)
+                if self.field[row][col] in context:
+                    context[self.field[row][col]](rect)
 
     def draw_cross(self, rect: pg.Rect) -> None:
         pg.draw.line(self.screen, Color.red, rect.topright, rect.bottomleft, 5)
@@ -111,14 +110,14 @@ class MainScene(BaseScene):
         pg.draw.circle(self.screen, Color.green, rect.center, self.size_block // 2, 5)
 
     @staticmethod
-    def collision_with_rect(cursor_pos, rect=pg.Rect) -> bool:
-        cord_x, cord_y = cursor_pos
-        return rect.left <= cord_x <= rect.right and rect.top <= cord_y <= rect.bottom
+    def check_cursor_click(cursor_pos: tuple, rect: pg.Rect, cell_sign: str) -> bool:
+        return rect.left <= cursor_pos[0] <= rect.right and rect.top <= cursor_pos[1] <= rect.bottom \
+               and cell_sign == Sign.empty
 
-    def get_cord_for_rect(self, i) -> int:
+    def get_cord_for_rect(self, i: int) -> int:
         return self.size_block * i + (i + 1) * self.retreat
 
-    def get_rect(self, row_cord, col_cord) -> pg.Rect:
+    def get_rect(self, row_cord: int, col_cord: int) -> pg.Rect:
         return pg.Rect(row_cord, col_cord, self.size_block, self.size_block)
 
 
@@ -141,8 +140,8 @@ class GameOverScene(BaseScene):
     def event_check(self, event: pg.event) -> None:
         super().event_check(event)
         if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-            MainScene().start()
+            MainScene(cell_count=self.main_scene.cell_count).start()
 
     def draw_to_screen(self) -> None:
         for text in self.texts:
-            text.draw(self.main_scene.screen)
+            text.draw(screen=self.main_scene.screen)
