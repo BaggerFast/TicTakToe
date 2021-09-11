@@ -1,6 +1,5 @@
-import sys
-
 import pygame as pg
+import sys
 
 from constans import Sign, Color
 from text import Text
@@ -41,6 +40,7 @@ class MainScene(BaseScene):
         self.size_block: int = 150
         self.retreat: int = 2
         self.cell_count: int = cell_count
+        self.figure_thickness = 10
         self.resolution: tuple = tuple([self.size_block * self.cell_count + self.retreat * (self.cell_count + 1)] * 2)
         self.screen = pg.display.set_mode(self.resolution)
 
@@ -103,11 +103,16 @@ class MainScene(BaseScene):
                     context[self.field[row][col]](rect)
 
     def draw_cross(self, rect: pg.Rect) -> None:
-        pg.draw.line(self.screen, Color.red, rect.topright, rect.bottomleft, 5)
-        pg.draw.line(self.screen, Color.red, rect.topleft, rect.bottomright, 5)
+        indent = 23
+
+        pg.draw.line(self.screen, Color.red, (rect.topright[0] - indent, rect.topright[1] + indent),
+                     (rect.bottomleft[0] + indent, rect.bottomleft[1] - indent), self.figure_thickness)
+
+        pg.draw.line(self.screen, Color.red, [i + indent for i in rect.topleft],
+                     [i - indent for i in rect.bottomright], self.figure_thickness)
 
     def draw_circle(self, rect: pg.Rect) -> None:
-        pg.draw.circle(self.screen, Color.green, rect.center, self.size_block // 2, 5)
+        pg.draw.circle(self.screen, Color.green, rect.center, self.size_block // 2 - 15, self.figure_thickness)
 
     @staticmethod
     def check_cursor_click(cursor_pos: tuple, rect: pg.Rect, cell_sign: str) -> bool:
