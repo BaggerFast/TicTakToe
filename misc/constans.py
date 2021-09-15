@@ -1,3 +1,6 @@
+DEBUG = False
+
+
 class Color:
     red = (255, 36, 0)
     green = (34, 139, 34)
