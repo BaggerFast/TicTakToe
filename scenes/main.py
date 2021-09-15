@@ -1,42 +1,11 @@
-import sys
-
 import pygame as pg
-
-from constans import Sign, Color
-from text import Text
-
-
-class BaseScene:
-    def __init__(self, header_name: str):
-        pg.display.set_caption(header_name)
-        self.fps: int = 60
-        self.scene_active: bool = True
-        self.time: pg.time = pg.time.Clock()
-
-    def start(self) -> None:
-        while self.scene_active:
-            for event in pg.event.get():
-                self.event_check(event)
-            self.draw_to_screen()
-            pg.display.update()
-            self.time.tick(self.fps)
-        self.finish()
-
-    @staticmethod
-    def event_check(event: pg.event) -> None:
-        if event.type == pg.QUIT:
-            sys.exit(0)
-
-    def finish(self) -> None:
-        pass
-
-    def draw_to_screen(self) -> None:
-        raise NotImplementedError
+from scenes.base import Base
+from misc import Color, Sign
 
 
-class MainScene(BaseScene):
-    def __init__(self, cell_count: int = 3):
-        super().__init__('Tic Tac Toe')
+class MainScene(Base):
+    def __init__(self, game, cell_count: int = 3):
+        super().__init__(game, 'Tic Tac Toe')
         # graphics
         self.size_block: int = 150
         self.retreat: int = 2
@@ -50,7 +19,7 @@ class MainScene(BaseScene):
         self.field: list[list[str]] = [[Sign.empty] * self.cell_count for _ in range(self.cell_count)]
 
     def finish(self) -> None:
-        GameOverScene(self).start()
+        self.game.Scenes.gameover(self.game, self).start()
 
     def event_check(self, event: pg.event) -> None:
         super().event_check(event)
@@ -119,29 +88,3 @@ class MainScene(BaseScene):
 
     def get_rect(self, row_cord: int, col_cord: int) -> pg.Rect:
         return pg.Rect(row_cord, col_cord, self.size_block, self.size_block)
-
-
-class GameOverScene(BaseScene):
-    def __init__(self, main_scene: MainScene):
-        super().__init__('Game Over')
-        self.main_scene: MainScene = main_scene
-        self.texts: list[Text] = self.get_texts()
-
-    def get_texts(self) -> list[Text]:
-        victory_text: Text = Text(f'Winner: {self.main_scene.winner}' if self.main_scene.winner else 'Draw', 70)
-        victory_text.update_center_position(center_cord=(self.main_scene.resolution[0] // 2,
-                                                         self.main_scene.resolution[1] // 2 - 20))
-
-        space_text: Text = Text('Press space to continue', 40)
-        space_text.update_center_position(center_cord=(self.main_scene.resolution[0] // 2,
-                                                       self.main_scene.resolution[1] // 2 + 30))
-        return [victory_text, space_text]
-
-    def event_check(self, event: pg.event) -> None:
-        super().event_check(event)
-        if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-            MainScene(cell_count=self.main_scene.cell_count).start()
-
-    def draw_to_screen(self) -> None:
-        for text in self.texts:
-            text.draw(screen=self.main_scene.screen)

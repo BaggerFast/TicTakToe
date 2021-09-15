@@ -1,6 +1,6 @@
 import pygame as pg
 
-from constans import Color
+from misc.constans import Color
 
 
 class Text:
