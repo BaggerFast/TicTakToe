@@ -1,3 +1,5 @@
+import os
+from abc import ABC
 from typing import Final
 import pygame as pg
 
@@ -10,6 +12,14 @@ GRID_THICKNESS: Final = 15
 GAME_NAME: Final = 'TicTakToe'
 GAME_RESOLUTION: Final = (CELL_SIZE * CELL_COUNT + GRID_THICKNESS * (CELL_COUNT + 1),
                           CELL_SIZE * CELL_COUNT + GRID_THICKNESS * (CELL_COUNT + 1))
+
+
+class PathCtrl(ABC):
+    BASE: Final = os.path.dirname(os.path.abspath(__file__))
+
+    @classmethod
+    def get_path(cls, path: str) -> str:
+        return os.path.join(cls.BASE, path)
 
 
 class Color:

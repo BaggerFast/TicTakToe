@@ -1,7 +1,7 @@
 import sys
 import pygame as pg
 from scenes import MainScene, SceneManager
-from settings import Color, FPS, GAME_RESOLUTION
+from settings import Color, FPS, GAME_RESOLUTION, PathCtrl
 
 
 class Game:
@@ -10,7 +10,9 @@ class Game:
 
     pg.display.init()
     pg.font.init()
-    pg.display.set_icon(pg.transform.scale(pg.image.load('assets/logo.png'), (90, 90)))
+    pg.display.set_icon(pg.transform.scale(
+        pg.image.load(PathCtrl.get_path('assets/logo.png')), (90, 90))
+    )
 
     # endregion
 
