@@ -48,7 +48,7 @@ class TicTacToe(IDrawable, IEventful):
                     from scenes import GameOverScene, SceneManager
                     SceneManager().current = GameOverScene(sign)
                     return
-                elif self.__move == CELL_COUNT ** 2:
+                if self.__move == CELL_COUNT ** 2:
                     from scenes import GameOverScene, SceneManager
                     SceneManager().current = GameOverScene('Draw')
                     return
