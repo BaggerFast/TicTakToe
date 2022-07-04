@@ -1,19 +1,26 @@
 import pygame as pg
 
-from misc.constans import Color
+from misc import IDrawable
+from settings import Color
 
 
-class Text:
-    def __init__(self, text, size, rect=(0, 0), color=Color.white, font="Arial"):
-        self.pos = rect
-        self.font = pg.font.SysFont(font, size, True)
-        self.surface = self.font.render(text, False, color)
+class Text(IDrawable):
 
-    def update_position(self, rect=()):
-        self.pos = rect
+    def __init__(self, text: str, size: int, rect=(0, 0), color=Color.WHITE, font: str = "Arial"):
+        self.__pos = rect
+        self.__font = pg.font.SysFont(font, size, True)
+        self.__surface: pg.Surface = self.__font.render(text, False, color)
 
-    def update_center_position(self, center_cord):
-        self.pos = self.surface.get_rect(center=center_cord)
+    # region Public
 
-    def draw(self, screen):
-        screen.blit(self.surface, self.pos)
+    # region Implementation of IDrawable
+
+    def process_draw(self, screen: pg.Surface):
+        screen.blit(self.__surface, self.__pos)
+
+    # endregion
+
+    def set_center_pos(self, center_cord):
+        self.__pos = self.__surface.get_rect(center=center_cord)
+
+    # endregion

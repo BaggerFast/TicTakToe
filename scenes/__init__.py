@@ -1,2 +1,3 @@
-from scenes.main import MainScene
-from scenes.gameover import GameOverScene
+from .main import MainScene
+from .gameover import GameOverScene
+from .base import SceneManager, Scene
