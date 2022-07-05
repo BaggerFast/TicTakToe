@@ -15,12 +15,12 @@ class Text(IDrawable):
 
     # region Implementation of IDrawable
 
-    def process_draw(self, screen: pg.Surface):
+    def process_draw(self, screen: pg.Surface) -> None:
         screen.blit(self.__surface, self.__pos)
 
     # endregion
 
-    def set_center_pos(self, center_cord):
+    def set_center_pos(self, center_cord) -> None:
         self.__pos = self.__surface.get_rect(center=center_cord)
 
     # endregion

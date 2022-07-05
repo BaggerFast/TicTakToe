@@ -14,7 +14,7 @@ class Sign:
 class TicTacToe(IDrawable, IEventful):
 
     def __init__(self):
-        self.__move: int = 1
+        self.__move = 1
         self.__field = [[Sign.EMPTY] * CELL_COUNT for _ in range(CELL_COUNT)]
         self.__field_rects = []
         self.__update_title()
@@ -108,7 +108,7 @@ class TicTacToe(IDrawable, IEventful):
                 col_coord = CELL_SIZE * col + GRID_THICKNESS * (col + 1)
                 self.__field_rects[-1].append(pg.Rect(row_coord, col_coord, CELL_SIZE, CELL_SIZE))
 
-    def __update_title(self):
+    def __update_title(self) -> None:
         pg.display.set_caption(f'{GAME_NAME} - {Sign.X if self.__move % 2 else Sign.O}')
 
     # endregion
